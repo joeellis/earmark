@@ -36,15 +36,15 @@ defmodule Mix.Tasks.Readme do
   /x
 
   defp remove_old_doc(readme) do
-    Regex.replace(@existing_doc, readme, fn (_, hdr, _, _) -> 
-        hdr 
+    Regex.replace(@existing_doc, readme, fn (_, hdr, _, _) ->
+        hdr
     end)
   end
 
   defp add_updated_doc(readme) do
-    Regex.replace(@new_doc, readme, fn (_, hdr, type, name) -> 
-      "\n" <> hdr <> "\n" <> 
-      doc_for(type, name) <> 
+    Regex.replace(@new_doc, readme, fn (_, hdr, type, name) ->
+      "\n" <> hdr <> "\n" <>
+      doc_for(type, name) <>
       Regex.replace(~r/!-- /, hdr, "!-- end") <> "\n"
     end)
   end
@@ -80,11 +80,9 @@ defmodule Mix.Tasks.Readme do
       {:module, _} ->
         if function_exported?(module, :__info__, 1) do
           docs = Code.get_docs(module, :docs)
-          doc = Enum.find(docs, fn ({{fun, _}, _line, _kind, _args, _doc}) ->
-            fun == func
+          Enum.find_value(docs, fn ({{fun, _}, _line, _kind, _args, doc}) ->
+            fun == func && doc
           end)
-          {_fun, _line, _kind, _args, documentation} = doc
-          documentation
         else
           nil
         end
@@ -94,7 +92,7 @@ defmodule Mix.Tasks.Readme do
     markdown || "No function documentation available for #{name}\n"
   end
 
-                                                      
+
   defp write_back(readme) do
     IO.puts :stderr,
       (case File.write("README.md", readme) do
