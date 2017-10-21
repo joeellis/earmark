@@ -15,9 +15,9 @@ defmodule Earmark.HtmlRenderer do
     {contexts, html} =
     mapper.(blocks, &(render_block(&1, put_in(context.options.messages, [])))) |> Enum.unzip()
 
-    all_messages = 
-      contexts 
-      |> Enum.reduce( messages, fn (ctx, messages1) ->  messages1 ++ get_messages(ctx) end) 
+    all_messages =
+      contexts
+      |> Enum.reduce( messages, fn (ctx, messages1) ->  messages1 ++ get_messages(ctx) end)
 
     {put_in(context.options.messages, all_messages), html |> IO.iodata_to_binary()}
   end
@@ -93,7 +93,7 @@ defmodule Earmark.HtmlRenderer do
     end
 
     context4 =  add_trs(context3, rows, "td", aligns, lnb)
-    
+
     {context4, [ context4.value, "</table>\n" ]}
   end
 
@@ -177,7 +177,7 @@ defmodule Earmark.HtmlRenderer do
   #####################################
   # And here are the inline renderers #
   #####################################
-  def ruby(kanji, kana),   do: "<ruby>#{kanji}<rt>#{kana}</rt></ruby>"
+
   def br,                  do: "<br/>"
   def codespan(text),      do: ~s[<code class="inline">#{text}</code>]
   def em(text),            do: "<em>#{text}</em>"
@@ -187,6 +187,10 @@ defmodule Earmark.HtmlRenderer do
   def link(url, text),        do: ~s[<a href="#{url}">#{text}</a>]
   def link(url, text, nil),   do: ~s[<a href="#{url}">#{text}</a>]
   def link(url, text, title), do: ~s[<a href="#{url}" title="#{title}">#{text}</a>]
+
+  def ruby(kanji, kana) do
+    ~s[<ruby>#{kanji}<rt>#{kana}</rt></ruby>]
+  end
 
   def image(path, alt, nil) do
     ~s[<img src="#{path}" alt="#{alt}"/>]
@@ -213,7 +217,7 @@ defmodule Earmark.HtmlRenderer do
     Enum.reduce(1..length(row), context, add_td_fn(row, tag, aligns, lnb))
   end
 
-  defp add_td_fn(row, tag, aligns, lnb) do 
+  defp add_td_fn(row, tag, aligns, lnb) do
     fn n, ctx ->
       style =
       case Enum.at(aligns, n - 1, :default) do

@@ -194,4 +194,38 @@ defmodule InlineTest do
     result = convert_pedantic(~s[a <span class="red">a&b</span> color])
     assert result == ~s[a <span class="red">a&amp;b</span> color]
   end
+
+  ################
+  # Kanji / Kana #
+  ################
+
+  test "compound kanji plus kana" do
+    result = convert_pedantic("{東}(とう){京}(きょう)")
+    assert result == "<ruby>東<rt>とう</rt></ruby><ruby>京<rt>きょう</rt></ruby>"
+  end
+
+  test "single kanji plus kana" do
+    result = convert_pedantic("{東}(とう)")
+    assert result == "<ruby>東<rt>とう</rt></ruby>"
+  end
+
+  test "double kanji plus kana" do
+    result = convert_pedantic("{東京}(とうきょう)")
+    assert result == "<ruby>東京<rt>とうきょう</rt></ruby>"
+  end
+
+  test "double kanji plus kana with prefix" do
+    result = convert_pedantic("test {東京}(とうきょう)")
+    assert result == "test <ruby>東京<rt>とうきょう</rt></ruby>"
+  end
+
+  test "many kanji combinations" do
+    result = convert_pedantic("{今}(いま)、サマーキャンプで{子}(こ){供}(ども){達}(たち)")
+    assert result == "<ruby>今<rt>いま</rt></ruby>、サマーキャンプで<ruby>子<rt>こ</rt></ruby><ruby>供<rt>ども</rt></ruby><ruby>達<rt>たち</rt></ruby>"
+  end
+
+  test "with mix of single and double-width parens and brackets" do
+    result = convert_pedantic("｛今｝（いま)、サマーキャンプで｛子｝（こ）{供｝(ども）｛達｝（たち）")
+    assert result == "<ruby>今<rt>いま</rt></ruby>、サマーキャンプで<ruby>子<rt>こ</rt></ruby><ruby>供<rt>ども</rt></ruby><ruby>達<rt>たち</rt></ruby>"
+  end
 end

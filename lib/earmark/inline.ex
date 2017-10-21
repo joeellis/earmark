@@ -26,6 +26,7 @@
 
   defp all_converters do
     [
+      converter_for_ruby:               &converter_for_ruby/2,
       converter_for_escape:             &converter_for_escape/2,
       converter_for_autolink:           &converter_for_autolink/2,
       converter_for_tag:                &converter_for_tag/2,
@@ -48,6 +49,7 @@
   defp convert_each(data, converters)
 
   defp convert_each({"", context, result, _lnb}, _converters) do
+
     with result1 <- result.value
         |> Enum.reverse()
         |> IO.iodata_to_binary
@@ -179,7 +181,18 @@
         [ m, _, c ] -> {m, c}
         [ m, c ]    -> {m, c}
       end
+
       out = renderer.strong(convert(content, lnb, context).value)
+
+
+      { behead(src, match), context, prepend(result,  out), lnb }
+    end
+  end
+
+  defp converter_for_ruby({src, context, result, lnb}, renderer) do
+    if match = Regex.run(context.rules.ruby, src) do
+      [ match, kanji, kana ] = match
+      out = renderer.ruby(kanji, kana)
       { behead(src, match), context, prepend(result,  out), lnb }
     end
   end
@@ -228,7 +241,7 @@
   defp converter_for_text({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.text, src) do
       [ match ] = match
-      out = escape(context.options.do_smartypants.(match)) 
+      out = escape(context.options.do_smartypants.(match))
       |> hard_line_breaks(context.options.gfm, renderer)
       { behead(src, match), context, prepend(result,  out), lnb }
     end
