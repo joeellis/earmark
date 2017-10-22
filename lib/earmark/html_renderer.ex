@@ -188,8 +188,10 @@ defmodule Earmark.HtmlRenderer do
   def link(url, text, nil),   do: ~s[<a href="#{url}">#{text}</a>]
   def link(url, text, title), do: ~s[<a href="#{url}" title="#{title}">#{text}</a>]
 
-  def ruby(kanji, kana) do
-    ~s[<ruby>#{kanji}<rt>#{kana}</rt></ruby>]
+  def ruby(rts) do
+    rt_tags = Enum.map(rts, fn ({kanji, kana}) -> "#{kanji}<rt>#{kana}</rt>" end)
+
+    ~s[<ruby>#{rt_tags}</ruby>]
   end
 
   def image(path, alt, nil) do

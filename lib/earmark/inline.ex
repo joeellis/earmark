@@ -191,9 +191,25 @@
 
   defp converter_for_ruby({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.ruby, src) do
-      [ match, kanji, kana ] = match
-      out = renderer.ruby(kanji, kana)
-      { behead(src, match), context, prepend(result,  out), lnb }
+      {rts, src} = add_to_rts(match, [], src, context)
+      out = renderer.ruby(rts)
+
+      { src, context, prepend(result,  out), lnb }
+    end
+  end
+
+  defp add_to_rts([], acc, src, context), do: {Enum.reverse(acc), src}
+  defp add_to_rts(match, acc, src, context) do
+    [ word_match, kanji, kana ] = match
+
+    acc = [{kanji, kana} | acc]
+    chop = behead(src, word_match)
+    next = Regex.run(context.rules.ruby, chop)
+
+    if next do
+      add_to_rts(next, acc, chop, context)
+    else
+      add_to_rts([], acc, chop, context)
     end
   end
 
