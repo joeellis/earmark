@@ -88,7 +88,7 @@ defmodule Earmark.Context do
      em:         ~r{^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)},
      code:       @code,
      br:         ~r<^ {2,}\n(?!\s*$)>,
-     text:       ~r<^[\s\S]+?(?=[\\<!\[_*\{\｛`]| {2,}\n|$)>,
+     text:       ~r/^[\s\S]+?(?=[\\<!\[_*\{\｛`]| {2,}\n|$)/u,
 
      strikethrough: ~r{\z\A}   # noop
     ]
